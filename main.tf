@@ -1,9 +1,9 @@
-# Provider definition and region
+# Define the provider and region
 provider "aws" {
   region = "us-east-1"  
 }
 
-# Existing VPC definition
+# Existing VPC ID
 data "aws_vpc" "existing" {
   id = "vpc-025de517f497c3e61"  
 }
@@ -12,8 +12,9 @@ data "aws_vpc" "existing" {
 resource "aws_security_group" "ecs_sg" {
   vpc_id = data.aws_vpc.existing.id
   name   = "ecs-security-group"
-  # Define the desired ingress and egress rules for your tasks
-  # For example, allow inbound traffic on port 5000
+
+  # Inbound and outbound traffic rules
+
   ingress {
     from_port   = 5000
     to_port     = 5000
@@ -34,7 +35,9 @@ resource "aws_ecs_task_definition" "task_definition" {
   network_mode          = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   
+
   execution_role_arn    = "arn:aws:iam::888988188010:role/ecr_task_role"  
+  
   # Container definition
   container_definitions = jsonencode([
     {
@@ -52,14 +55,14 @@ resource "aws_ecs_task_definition" "task_definition" {
     }
   ])
   
-  # Defining the task placement configuration
+  # Task placement configuration
   placement_constraints {
     type       = "memberOf"
     expression = "attribute:ecs.instance-type =~ t3.*"
   }
 }
 
-# Creating an ECS service
+# ECS service
 resource "aws_ecs_service" "service" {
   name            = "miniflask-api-service"
   cluster         = "default"  
@@ -67,20 +70,10 @@ resource "aws_ecs_service" "service" {
   desired_count   = 1
   launch_type     = "FARGATE"
   
-  # Defining the network configuration
+  # Network configuration
   network_configuration {
-    subnets          = data.aws_vpc.existing.subnet_ids
+    subnets          = ["subnet-0822d87ddce4bcbbc", "subnet-094a34598768e9840", "subnet-0d7b7e8378f8e2a0f", "subnet-059978dbf2e899557", "subnet-03699922f580f18bc", "subnet-07c24f3f5bc2c4c2f"]
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
-}
-
-# Retrieve the ECS cluster details
-data "aws_ecs_cluster" "cluster" {
-  cluster_name = "default"  
-}
-
-# Output the public IP address of the ECS service
-output "public_ip_address" {
-  value = aws_ecs_service.service.load_balancer.first.public_ip
 }
