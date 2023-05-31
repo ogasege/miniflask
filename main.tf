@@ -1,9 +1,9 @@
-# Define the provider and region
+# Provider definition
 provider "aws" {
   region = "us-east-1"  
 }
 
-# Existing VPC ID
+# VPC definition
 data "aws_vpc" "existing" {
   id = "vpc-025de517f497c3e61"  
 }
@@ -12,9 +12,7 @@ data "aws_vpc" "existing" {
 resource "aws_security_group" "ecs_sg" {
   vpc_id = data.aws_vpc.existing.id
   name   = "ecs-security-group"
-
-  # Inbound and outbound traffic rules
-
+  # Inbound and outbound rules
   ingress {
     from_port   = 5000
     to_port     = 5000
@@ -33,16 +31,17 @@ resource "aws_security_group" "ecs_sg" {
 resource "aws_ecs_task_definition" "task_definition" {
   family                = "miniflask-api-task"
   network_mode          = "awsvpc"
+  memory                = "512"
   requires_compatibilities = ["FARGATE"]
   
-
+  # Task execution role
   execution_role_arn    = "arn:aws:iam::888988188010:role/ecr_task_role"  
   
   # Container definition
   container_definitions = jsonencode([
     {
       name      = "miniflask-api-container"
-      image     = "public.ecr.aws/g1s5q2a7/miniflask-api:latest"  
+      image     = "public.ecr.aws/g1s5q2a7/miniflask-api:latest" 
       cpu       = 256
       memory    = 512
       port_mappings = [
@@ -54,18 +53,20 @@ resource "aws_ecs_task_definition" "task_definition" {
       ]
     }
   ])
-  
-  # Task placement configuration
-  placement_constraints {
-    type       = "memberOf"
-    expression = "attribute:ecs.instance-type =~ t3.*"
-  }
+
+  # Defining the task-level CPU
+  cpu = "256"  
 }
 
 # ECS service
+
+resource "aws_ecs_cluster" "ecs_cluster" {
+  name = "minimal-api-cluster"  
+}
+
 resource "aws_ecs_service" "service" {
   name            = "miniflask-api-service"
-  cluster         = "default"  
+  cluster         = "minimal-api-cluster"  
   task_definition = aws_ecs_task_definition.task_definition.arn
   desired_count   = 1
   launch_type     = "FARGATE"
