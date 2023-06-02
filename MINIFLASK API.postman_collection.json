@@ -1,0 +1,31 @@
+{
+	"info": {
+		"_postman_id": "d7374bf8-6dad-4cc3-82d8-4b49d8cb46f5",
+		"name": "MINIFLASK API",
+		"description": "**Miniflask API application**\n\nThese API endpoints generate the unix timestamp at a particular instance (time API) and output a list of 10 random numbers within the range 0 to 5 when called (RandomNumbers API).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "27730559"
+	},
+	"item": [
+		{
+			"name": "RandomNumbers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://18.215.160.156:5000/random",
+				"description": "Generates Array of 10 Random Numbers Within the Range of 0 and 5"
+			},
+			"response": []
+		},
+		{
+			"name": "Time",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://18.215.160.156:5000/time",
+				"description": "Returns unix timestamp"
+			},
+			"response": []
+		}
+	]
+}
