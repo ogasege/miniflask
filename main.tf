@@ -1,6 +1,3 @@
-Certainly! I've added comments in the Terraform configuration to indicate the values that need to be replaced with specific information:
-
-```hcl
 # Provider definition
 provider "aws" {
   region = "us-east-1"
@@ -80,5 +77,5 @@ resource "aws_ecs_service" "service" {
     assign_public_ip = true
   }
 }
-```
+
 
