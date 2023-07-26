@@ -1,11 +1,14 @@
+Certainly! I've added comments in the Terraform configuration to indicate the values that need to be replaced with specific information:
+
+```hcl
 # Provider definition
 provider "aws" {
-  region = "us-east-1"  
+  region = "us-east-1"
 }
 
 # VPC definition
 data "aws_vpc" "existing" {
-  id = "vpc-025de517f497c3e61"  
+  id = "vpc-XXXXXXXXXXXXXXXXX"  # Replace "vpc-XXXXXXXXXXXXXXXXX" with your VPC ID
 }
 
 # Security group for the ECS tasks
@@ -34,8 +37,8 @@ resource "aws_ecs_task_definition" "task_definition" {
   memory                = "512"
   requires_compatibilities = ["FARGATE"]
   
-  # Task execution role
-  execution_role_arn    = "arn:aws:iam::888988188010:role/ecr_task_role"  
+  # Task execution role (Replace "XXX" with your IAM role ARN)
+  execution_role_arn    = "arn:aws:iam::XXX:role/ecr_task_role"  # Replace "XXX" with your IAM role ARN
   
   # Container definition
   container_definitions = jsonencode([
@@ -59,22 +62,23 @@ resource "aws_ecs_task_definition" "task_definition" {
 }
 
 # ECS service
-
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "minimal-api-cluster"  
 }
 
 resource "aws_ecs_service" "service" {
   name            = "miniflask-api-service"
-  cluster         = "minimal-api-cluster"  
+  cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.task_definition.arn
   desired_count   = 1
   launch_type     = "FARGATE"
   
   # Network configuration
   network_configuration {
-    subnets          = ["subnet-0822d87ddce4bcbbc", "subnet-094a34598768e9840", "subnet-0d7b7e8378f8e2a0f", "subnet-059978dbf2e899557", "subnet-03699922f580f18bc", "subnet-07c24f3f5bc2c4c2f"]
+    subnets          = ["subnet-XXX", "subnet-XXX", "subnet-XXX", "subnet-XXX", "subnet-XXX", "subnet-XXX"]  # Replace "subnet-XXX" with your subnet IDs
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
 }
+```
+
